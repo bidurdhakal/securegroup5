@@ -1,3 +1,6 @@
+# Group 5
+# Pemba, Saurab, Roshan, Bidur
+
 import asyncio
 import websockets
 import json
@@ -18,46 +21,46 @@ def verify_password(stored_hash, provided_password, method='bcrypt'):
 
 # Registered Clients
 registered_clients = {
-    "c1@s6": {
+    "c1@s5": {
         "nickname": "pemba",
-        "jid": "c1@s6",
+        "jid": "c1@s5",
         "password": b'$2b$12$qWoDtedvx8jurr/2XVex7.raoa7tqIofxPYrx1.oy6qmDpHavkYwa',
         "method": "bcrypt"
     },
-    "c2@s6": {
+    "c2@s5": {
         "nickname": "saurab",
-        "jid": "c2@s6",
+        "jid": "c2@s5",
         "password": b'$2b$12$suJThyymiIVez4nLyUjpPurPq/E3BBTRdDGMnxADdbIjdst5kbKvS',
         "method": "bcrypt"
     },
-    "c3@s6": {
+    "c3@s5": {
         "nickname": "roshan",
-        "jid": "c3@s6",
+        "jid": "c3@s5",
         "password": b'$2b$12$Cz8bUuhzYyoHMdbvZLlcs.Cc0nOSR3VzAHOFrnF3ic6unrxZ6rwoG',
         "method": "bcrypt"
     },
-    "c4@s6": {
+    "c4@s5": {
         "nickname": "bidur",
-        "jid": "c4@s6",
+        "jid": "c4@s5",
         "password": b'$2b$12$FwNWm33zvTOFtK6yrUXW0uMrMdu9jGR9AY7RgKgcm0sEzWjbhquOK',
         "method": "bcrypt"
     },
-    "test1@s6": {
+    "test1@s5": {
         "nickname": "test1",
-        "jid": "test1@s6",
+        "jid": "test1@s5",
         "password": b'$2b$12$p10W.J8Olc8YtH87CPtYQuoFZ0P9qwqycWBlWvvaxCbIbre1u4Rhy',
         "method": "bcrypt"
     },
-    "test2@s6": {
+    "test2@s5": {
         "nickname": "test2",
-        "jid": "test2@s6",
+        "jid": "test2@s5",
         "password": b'$2b$12$Xi6R9JEPPAagsKthzn38SeSHNWutCIDJ/7sas.vNZc6OzB77yithG',
         "method": "bcrypt"
     },
     # User with MD5 hashed password
-    "md5user@s6": {
+    "md5user@s5": {
         "nickname": "md5user",
-        "jid": "md5user@s6",
+        "jid": "md5user@s5",
         "password": md5_hash("md5password"),  # MD5 hashed password
         "method": "md5"
     }

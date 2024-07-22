@@ -7,7 +7,7 @@ connected_clients = set()
 server_state = {}
 
 # my domain
-domain = 'c1@s6'
+domain = 'c1@s5'
 # mapping
 server_mapping = {
     "c1@s7": "ws://10.13.86.167:5555"
