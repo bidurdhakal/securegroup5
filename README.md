@@ -79,12 +79,12 @@ Double-click on the `index.html` file to open it.
 
 We have created some test users with admin priveledge. The index page will prompt for a jid and password for login. Use the following credentials:
 ```sh
-Username: test1@s6
-Password: test1@s6
+Username: test1@s5
+Password: test1@s5
 ```
 ```sh
-Username: test2@s6
-Password: test2@s6
+Username: test2@s5
+Password: test2@s5
 ```
 
 After logging in, the main chat room will appear, showing the online users. In the example below, the users `test1` and `test2` are online.
