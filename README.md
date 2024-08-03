@@ -45,6 +45,8 @@ brew install python@3.8
 Install the necessary Python libraries:
 ```sh
 pip install websockets
+pip install python-dotenv
+pip install bleach
 ```
 
 After successfully installing all dependencies, configure the IP address and domain on the server side.
@@ -57,7 +59,11 @@ Download the client scripts. No additional dependencies are required for the cli
 
 ### Server-side Configuration
 
-Update the `server.py` file with your laptop/PC IP address and port number `<IP Address>` and `<5555>` respectively. After making the necessary changes, run the script:
+Create the `.env` file and add your IP address and port number respectively. 
+
+![Server Output](./assets/envconfig.png)
+
+After making the necessary changes, run the script:
 ```sh
 python server.py
 ```

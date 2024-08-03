@@ -8,7 +8,7 @@ $(document).ready(function() {
     let toPublicKey;
     
     // local ip 
-    const server = 'ws://localhost:5555';
+    const server = 'ws://172.20.10.7:5555';
 
     // initalize JsEncrypt
     const jsEncrypt = new JSEncrypt({ default_key_size: 2048 });
@@ -18,12 +18,12 @@ $(document).ready(function() {
 
     // show div for chat messages and group-messages
     function showDiv(divId) {
-        $(`#${divId}`).html("").removeClass('hidden');
+        $(`#${divId}`).empty().removeClass('hidden');
     }
 
     // hide div for chat messages and group-messages
     function hideDiv(divId) {
-        $(`#${divId}`).html("").addClass('hidden');
+        $(`#${divId}`).empty().addClass('hidden');
     }
 
     // once client clicks on active clients on left side bar then setCurrentChat
@@ -38,7 +38,7 @@ $(document).ready(function() {
 
     // update the online user list
     function updateOnlineUsers(users, currentJID) {
-        $('#online-users-list').html("");
+        $('#online-users-list').empty();
         users.forEach(user => {
             if (user.jid !== currentJID) {
                 const userDiv = $('<div>').addClass('cursor-pointer');
@@ -59,7 +59,7 @@ $(document).ready(function() {
         }
         let fromInfo = '';
         if (response.to == 'public' && response.from!==currentUser) {
-            fromInfo = `<div>From: ${response.from}</div>`;
+            fromInfo = `<div>From: ${(response.from)}</div>`;
         }
 
         let messageText = response.info;
@@ -83,8 +83,13 @@ $(document).ready(function() {
 
     // send message to server
     function sendMessage() {
-        const message = $('#message-input').val().trim();
-        if (message !== '') {
+        const message = DOMPurify.sanitize($('#message-input').val().trim());
+        const words = message.trim().split(/\s+/);
+        
+        if (words.length > 100) {
+            alert('The message is greater than 100 words');
+        }
+        else if (message !== '') {
             const messageData = {
                 tag: 'message',
                 from: currentUser,
@@ -96,6 +101,7 @@ $(document).ready(function() {
                 // encrypt the message
                 const ciphertext = jsEncrypt.encrypt(message);
                 messageData.info = ciphertext;
+                
                 displayMessage({ ...messageData, info: message }, 'chat-messages', 'end', 'indigo-500');
             } else {
                 messageData.info = message;
@@ -112,8 +118,8 @@ $(document).ready(function() {
     // handle the login
     function handleLogin(e) {
         e.preventDefault();
-        const jid = $('#username-input').val().trim();
-        const password = $('#password-input').val().trim();
+        const jid = DOMPurify.sanitize($('#username-input').val().trim());
+        const password = DOMPurify.sanitize($('#password-input').val().trim());
 
         if (jid && password) {
             socket = new WebSocket(server);
@@ -129,7 +135,6 @@ $(document).ready(function() {
                 };
                 socket.send(JSON.stringify(presenceMessage));
             };
-
             socket.onmessage = event => handleSocketMessage(event, jid);
             socket.onclose = handleSocketClose;
             socket.onerror = error => console.error('WebSocket error:', error);
@@ -186,7 +191,8 @@ $(document).ready(function() {
     // when user selects the file
     function handleFileInput(event) {
         const file = event.target.files[0];
-        if (file) {
+        const maxSize = 2 * 1024 * 1024; // 2 MB limit
+        if (file && file.size <= maxSize) {
             const reader = new FileReader();
             reader.onload = e => {
                 const fileData = e.target.result;
@@ -203,8 +209,12 @@ $(document).ready(function() {
                 socket.send(JSON.stringify(fileMessage));
             };
             reader.readAsDataURL(file);
+            
         }
-        // resetting the file input once the file is submitted
+        else{
+            alert('File Size Should be less than 2MB')
+        }
+        // resetting the file input
         $(this).val('');
     }
 
@@ -212,7 +222,7 @@ $(document).ready(function() {
     function receiveFile(response, containerId) {
         let fromInfo = '';
         if (response.to == 'public') {
-            fromInfo = `<div>From: ${response.from}</div>`;
+            fromInfo = `<div>From: ${(response.from)}</div>`;
         }
 
         if (selectedUser && response.info && response.filename) {

