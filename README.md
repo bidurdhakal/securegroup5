@@ -69,13 +69,11 @@ python server.py
 ```
 You should see output indicating that your IP address is associated with port 5555 instead of `ws://localhost:5555`.
 
-![Server Output](./assets/js-change-ip.png)
-
 ### Client-side Configuration
 
-Download the `index.html` script and make the necessary changes in the file. You can change localhost to your Laptop/PC IP in `server.py` and `script.js`
+Download the `index.html` script and make the necessary changes in the file. You can change localhost to your Laptop/PC IP in `script.js`
 
-![Python IP change](./assets/python-change-ip.png)
+![Server Output](./assets/js-change-ip.png)
 
 To find your IP address, use `ipconfig` for Windows or `ifconfig` for Linux, and update it in the script accordingly.
 
