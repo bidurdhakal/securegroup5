@@ -1,0 +1,15 @@
+# Student Details
+
+- Pemba Sherpa (a1905524)
+- Saurab Kharel (a1919868)
+- Bidur Dhakal (a1908335)
+- Roshan Bajracharya 
+
+First Code Submission (Without Feedback and With Backdoors)
+
+The first code is on the main branch (https://github.com/bidurdhakal/securegroup5/tree/main)
+
+Second Code Submission (With Feedback and Remove Backdoors)
+
+The second code is on the feedback_code branch (https://github.com/bidurdhakal/securegroup5/tree/feedback_code)
+

@@ -11,6 +11,25 @@
 - Group (broadcast) messages to all online users
 - Peer-to-peer file transfer
 
+# Student Details
+
+- Pemba Sherpa (a1905524)
+- Saurab Kharel (a1919868)
+- Bidur Dhakal (a1908335)
+- Roshan Bajracharya 
+
+# Github Branches
+
+If you want the first submission of code without peer review changes and with backdoors please clone the main branch
+```sh
+git clone https://github.com/bidurdhakal/securegroup5.git
+```
+
+But you want the second submission of code with peer review changes and remove of backdoors please clone the feedback_code branch
+```sh
+git clone -b feedback_code https://github.com/bidurdhakal/securegroup5.git
+```
+
 ## Technologies Used
 
 The application is developed with Python for server-side scripting, and JavaScript and HTML for the client-side. This combination ensures the application is resource-efficient and user-friendly.
