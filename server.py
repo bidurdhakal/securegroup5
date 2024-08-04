@@ -50,13 +50,13 @@ registered_clients = {
     "test1@s5": {
         "nickname": "test1",
         "jid": "test1@s5",
-        "password": b'$2b$12$p10W.J8Olc8YtH87CPtYQuoFZ0P9qwqycWBlWvvaxCbIbre1u4Rhy'
+        "password": b'$2b$12$JMN7bSNLOQw9CvefBs79rOsQYefOhnFfxt1zzKVsiKF1tw7ha5URG',
     },
     "test2@s5": {
         "nickname": "test2",
         "jid": "test2@s5",
-        "password": b'$2b$12$Xi6R9JEPPAagsKthzn38SeSHNWutCIDJ/7sas.vNZc6OzB77yithG'
-    }
+        "password": b'$2b$12$rFzKEMeiJISlYvU1CMzSg.8ZdUn3vbfKtBRBmjQuJ3vpQV5zOY12u'
+    },
 }
 
 # Store active clients
