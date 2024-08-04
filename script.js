@@ -57,6 +57,7 @@ $(document).ready(function() {
         if (!selectedUser || response.info === '') {
             return;
         }
+
         let fromInfo = '';
         if (response.to == 'public' && response.from!==currentUser) {
             fromInfo = `<div>From: ${(response.from)}</div>`;
@@ -100,8 +101,7 @@ $(document).ready(function() {
                 jsEncrypt.setPublicKey(toPublicKey);
                 // encrypt the message
                 const ciphertext = jsEncrypt.encrypt(message);
-                messageData.info = ciphertext;
-                
+                messageData.info = ciphertext;     
                 displayMessage({ ...messageData, info: message }, 'chat-messages', 'end', 'indigo-500');
             } else {
                 messageData.info = message;
@@ -166,7 +166,10 @@ $(document).ready(function() {
                 if (response.to === 'public' && response.from !== currentUser) {
                     displayMessage(response, 'group-messages');
                 } else {
-                    displayMessage(response, 'chat-messages', 'start', 'white', true);
+                    if (response.from == selectedUser)
+                    {
+                        displayMessage(response, 'chat-messages', 'start', 'white', true);
+                    }
                 }
                 break;
             case 'file':
