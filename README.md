@@ -86,11 +86,11 @@ After making the necessary changes, run the script:
 ```sh
 python server.py
 ```
-You should see output indicating that your IP address is associated with port 5555 instead of `ws://localhost:5555`.
+You should see output indicating that your IP address is associated with port 5555.
 
 ### Client-side Configuration
 
-Download the `index.html` script and make the necessary changes in the file. You can change localhost to your Laptop/PC IP in `script.js`
+Download the `index.html`. Please use the same IP and port mentioned in . env file and changed in `script.js`. For example (ws://ip:port)
 
 ![Server Output](./assets/js-change-ip.png)
 
@@ -100,7 +100,7 @@ Double-click on the `index.html` file to open it.
 
 ![Client Configuration](./assets/login.png)
 
-We have created some test users with admin priveledge. The index page will prompt for a jid and password for login. Use the following credentials:
+We have created some test users with admin privilege. The index page will prompt for a jid and password for login. Use the following credentials:
 ```sh
 Username: test1@s5
 Password: test1@s5
