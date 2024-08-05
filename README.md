@@ -90,7 +90,7 @@ You should see output indicating that your IP address is associated with port 55
 
 ### Client-side Configuration
 
-Download the `index.html`. Please use the same IP and port mentioned in . env file and changed in `script.js`. For example (ws://ip:port)
+Download the `index.html`. Please use the same IP and port mentioned in . env file and changed in `script.js`. For example (ws://ip:port). Changed the IP and port on line number 11 on script.js.
 
 ![Server Output](./assets/js-change-ip.png)
 
