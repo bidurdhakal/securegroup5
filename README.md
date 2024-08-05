@@ -32,7 +32,7 @@ git clone -b feedback_code https://github.com/bidurdhakal/securegroup5.git
 
 ## Technologies Used
 
-The application is developed with Python for server-side scripting, and JavaScript and HTML for the client-side. This combination ensures the application is resource-efficient and user-friendly.
+The application is developed with Python for server-side scripting, and HTML,CSS and jQuery for the client-side. This combination ensures the application is resource-efficient and user-friendly.
 
 ## Prerequisites
 
