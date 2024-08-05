@@ -65,7 +65,7 @@ ip = os.getenv('IP')
 port = os.getenv('PORT')
 
 
-async def handle_client(websocket):
+async def handle_client(websocket,path):
     """
     Responsible for communicating with clients
     """
